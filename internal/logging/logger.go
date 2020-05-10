@@ -19,5 +19,5 @@ func NewLogger(cfg *config.Config) *Logger {
 
 // Module provided to fx
 var Module = fx.Options(
-	fx.Invoke(NewLogger),
+	fx.Provide(NewLogger),
 )

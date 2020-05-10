@@ -36,11 +36,11 @@ func (h *Handler) hello(w http.ResponseWriter, r *http.Request) {
 }
 
 // InvokeServer starts our http server
-func InvokeServer(lc fx.Lifecycle, cfg *config.Config, mux *http.ServeMux, logger *logging.Logger) {
+func InvokeServer(lc fx.Lifecycle, cfg *config.Config, handler *Handler, logger *logging.Logger) {
 	lc.Append(
 		fx.Hook{
 			OnStart: func(context.Context) error {
-				go http.ListenAndServe(cfg.HTTPAddress, mux)
+				go http.ListenAndServe(cfg.HTTPAddress, handler.mux)
 				return nil
 			},
 			OnStop: func(context.Context) error {
@@ -52,7 +52,8 @@ func InvokeServer(lc fx.Lifecycle, cfg *config.Config, mux *http.ServeMux, logge
 
 // Module provided to fx
 var Module = fx.Options(
-	fx.Provide(http.NewServeMux),
-	fx.Invoke(NewHandler),
-	fx.Invoke(InvokeServer),
+	fx.Provide(
+		http.NewServeMux,
+		NewHandler,
+	),
 )

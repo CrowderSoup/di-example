@@ -9,8 +9,8 @@ type Config struct {
 	HTTPAddress string
 }
 
-// ProvideConfig provides our application config
-func ProvideConfig() *Config {
+// NewConfig provides our application config
+func NewConfig() *Config {
 	return &Config{
 		HTTPAddress: ":3000",
 	}
@@ -18,5 +18,5 @@ func ProvideConfig() *Config {
 
 // Module provided to fx
 var Module = fx.Options(
-	fx.Provide(ProvideConfig),
+	fx.Provide(NewConfig),
 )

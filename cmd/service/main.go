@@ -16,6 +16,7 @@ func main() {
 	)
 	app := fx.New(
 		bundle,
+		fx.Invoke(server.InvokeServer),
 	)
 
 	app.Run()
