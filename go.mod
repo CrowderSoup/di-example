@@ -1,4 +1,4 @@
-module cloud.bsdrocker.com/CrowderSoup/di-example
+module github.com/CrowderSoup/di-example
 
 go 1.14
 

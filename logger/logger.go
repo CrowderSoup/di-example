@@ -3,7 +3,8 @@ package logger
 import (
 	"context"
 
-	"cloud.bsdrocker.com/CrowderSoup/di-example/config"
+	"github.com/CrowderSoup/di-example/config"
+
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )

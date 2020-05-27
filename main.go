@@ -1,9 +1,10 @@
 package main
 
 import (
-	"cloud.bsdrocker.com/CrowderSoup/di-example/config"
-	"cloud.bsdrocker.com/CrowderSoup/di-example/logger"
-	"cloud.bsdrocker.com/CrowderSoup/di-example/server"
+	"github.com/CrowderSoup/di-example/config"
+	"github.com/CrowderSoup/di-example/logger"
+	"github.com/CrowderSoup/di-example/server"
+
 	"go.uber.org/fx"
 )
 
