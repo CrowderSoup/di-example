@@ -1,36 +1,19 @@
 package main
 
 import (
-	"net/http"
-
-	"github.com/koding/multiconfig"
-	"go.uber.org/zap"
+	"cloud.bsdrocker.com/CrowderSoup/di-example/config"
+	"cloud.bsdrocker.com/CrowderSoup/di-example/logger"
+	"cloud.bsdrocker.com/CrowderSoup/di-example/server"
 )
 
-// Config our app config
-type Config struct {
-	Address string `default:":3000"`
-}
-
 func main() {
-	var config Config
-	m := multiconfig.New()
-	m.MustLoad(&config)
+	config := config.LoadConfig()
 
-	logger, _ := zap.NewProduction()
+	logger, _ := logger.NewZapLogger(config)
 	defer logger.Sync() // flushes buffer, if any
 	sugar := logger.Sugar()
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		sugar.Infow("recieved request",
-			"RequestURI", r.RequestURI,
-		)
-		w.WriteHeader(200)
-		w.Write([]byte("Hello World"))
-	})
+	server := server.NewServer(config, sugar)
 
-	sugar.Infow("starting http server",
-		"Address", config.Address,
-	)
-	sugar.Fatal(http.ListenAndServe(config.Address, http.DefaultServeMux))
+	sugar.Fatal(server.Run())
 }
