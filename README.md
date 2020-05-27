@@ -110,6 +110,5 @@ of your application need them.
 `fx` specifically also helps you manage the lifecycle of your application. It
 allows you to handle startup failures and graceful shutdowns across your entire
 application (if one thing fails to start, it all shuts down gracefully). This
-helps you be assured that when you deploy something you can have high
-confidence that it's correct, or if it's not, that it will fail quickly and
-gracefully.
+gives you high confidence when you deploy something that it's correct or that
+it will fail quickly and gracefully.
