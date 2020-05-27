@@ -1,10 +1,13 @@
 package server
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"cloud.bsdrocker.com/CrowderSoup/di-example/config"
 
+	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
@@ -12,22 +15,34 @@ import (
 type Server struct {
 	Address string
 	Logger  *zap.SugaredLogger
+	mux     *http.ServeMux
+	http    *http.Server
 }
 
 // NewServer returns a new server
-func NewServer(config *config.Config, logger *zap.SugaredLogger) *Server {
+func NewServer(config *config.Config, logger *zap.SugaredLogger, mux *http.ServeMux) *Server {
 	server := &Server{
 		Address: config.Address,
 		Logger:  logger,
+		mux:     mux,
 	}
 
 	server.initRoutes()
+
+	s := &http.Server{
+		Addr:           config.Address,
+		Handler:        mux,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+	server.http = s
 
 	return server
 }
 
 func (s *Server) initRoutes() {
-	http.HandleFunc("/", s.hello)
+	s.mux.HandleFunc("/", s.hello)
 }
 
 func (s *Server) hello(w http.ResponseWriter, r *http.Request) {
@@ -39,10 +54,29 @@ func (s *Server) hello(w http.ResponseWriter, r *http.Request) {
 }
 
 // Run starts our HTTP server
-func (s *Server) Run() error {
-	s.Logger.Infow("starting http server",
-		"Address", s.Address,
-	)
+func Run(lc fx.Lifecycle, s *Server) {
+	lc.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				s.Logger.Infow("starting http server",
+					"Address", s.Address,
+				)
 
-	return http.ListenAndServe(s.Address, http.DefaultServeMux)
+				go s.http.ListenAndServe()
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				s.http.Shutdown(ctx)
+				return nil
+			},
+		},
+	)
 }
+
+// Module provided to fx
+var Module = fx.Options(
+	fx.Provide(
+		http.NewServeMux,
+		NewServer,
+	),
+)

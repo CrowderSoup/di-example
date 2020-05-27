@@ -1,7 +1,10 @@
 package logger
 
 import (
+	"context"
+
 	"cloud.bsdrocker.com/CrowderSoup/di-example/config"
+	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
@@ -18,3 +21,31 @@ func NewZapLogger(config *config.Config) (*zap.Logger, error) {
 
 	return logger, err
 }
+
+// ProvideSugaredLogger provides a sugared logger to all who want one
+func ProvideSugaredLogger(logger *zap.Logger) *zap.SugaredLogger {
+	return logger.Sugar()
+}
+
+// InvokeLogger manages the loggers Lifecycle
+func InvokeLogger(lc fx.Lifecycle, logger *zap.Logger) {
+	lc.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				logger.Sync()
+				return nil
+			},
+		},
+	)
+}
+
+// Module provided to fx
+var Module = fx.Options(
+	fx.Provide(
+		NewZapLogger,
+		ProvideSugaredLogger,
+	),
+)

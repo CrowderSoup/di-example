@@ -1,6 +1,9 @@
 package config
 
-import "github.com/koding/multiconfig"
+import (
+	"github.com/koding/multiconfig"
+	"go.uber.org/fx"
+)
 
 // Config our app config
 type Config struct {
@@ -16,3 +19,10 @@ func LoadConfig() *Config {
 
 	return &config
 }
+
+// Module provided to fx
+var Module = fx.Options(
+	fx.Provide(
+		LoadConfig,
+	),
+)
